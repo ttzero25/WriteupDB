@@ -9,7 +9,7 @@ points: 50
 tags: [web]
 ---
 
-# pokecollector
+# pokecollector 
 
 ## 문제 설명
 
