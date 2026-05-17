@@ -18,6 +18,7 @@ tags: [byte shift, bash obfuscation, base64, gzip]
 
 - 제공 파일: `chall`
 - 문제 제목과 힌트처럼 파일의 각 바이트가 일정하게 회전/이동되어 있는 리버싱 문제다.
+- 제출 디렉터리에는 풀이 과정에서 사용한 `patch_byte.c`, 컴파일 결과인 `patch_byte.exec`, 패치 결과물인 `chall_patch`, 실행 결과 생성된 `script.sh`도 함께 포함했다.
 
 ## 풀이
 
@@ -80,8 +81,8 @@ patched_byte = original_byte - 0x1d
 `patch_byte.c`를 컴파일하고 실행하여 `chall_patch`를 생성한다.
 
 ```bash
-$ gcc patch_byte.c
-$ ./a.out
+$ gcc patch_byte.c -o patch_byte.exec
+$ ./patch_byte.exec
 ```
 
 이후 패치된 바이너리를 실행하면 난독화된 Bash 스크립트가 생성된다.
@@ -117,6 +118,18 @@ tjctf{...}
 ```text
 tjctf{REDACTED}
 ```
+
+## 추가 파일
+
+제출물에는 문제 풀이 흐름을 재현할 수 있도록 현재 문제 디렉터리에 있던 파일을 함께 첨부했다.
+
+| 파일 | 설명 |
+|------|------|
+| `chall` | 문제에서 주어진 원본 파일 |
+| `patch_byte.c` | `chall`의 각 바이트에서 `0x1d`를 빼서 `chall_patch`를 생성하는 패치 코드 |
+| `patch_byte.exec` | `patch_byte.c`를 컴파일한 실행 파일 |
+| `chall_patch` | byte shift를 복구한 ELF 실행 파일 |
+| `script.sh` | `chall_patch` 실행 결과 생성된 난독화 Bash 스크립트 |
 
 ## 배운 점
 
