@@ -9,6 +9,8 @@ Usage:
     python scripts/validate_frontmatter.py writeups/.../README.md   # 특정 파일 검증
 """
 
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -17,9 +19,33 @@ import frontmatter
 REQUIRED_FIELDS = ["ctf_name", "challenge_name", "category", "difficulty", "author", "date"]
 VALID_CATEGORIES = {"web", "pwn", "rev", "crypto", "misc"}
 VALID_DIFFICULTIES = {"easy", "medium", "hard", "insane"}
+GIT_NICKNAME_ENV_VARS = ("WRITEUP_GIT_NICKNAME", "EXPECTED_GIT_NICKNAME", "GITHUB_ACTOR")
 
 
-def validate_file(filepath: Path) -> list[str]:
+def get_git_nickname() -> str | None:
+    """현재 검증 기준으로 사용할 git nickname을 반환합니다."""
+    for env_var in GIT_NICKNAME_ENV_VARS:
+        value = os.environ.get(env_var, "").strip()
+        if value:
+            return value
+
+    try:
+        result = subprocess.run(
+            ["git", "config", "--get", "user.name"],
+            cwd=Path(__file__).resolve().parent.parent,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except OSError:
+        return None
+
+    nickname = result.stdout.strip()
+    return nickname or None
+
+
+def validate_file(filepath: Path, git_nickname: str | None = None) -> list[str]:
     """단일 writeup 파일의 frontmatter를 검증하고 에러 목록을 반환합니다."""
     errors = []
 
@@ -67,6 +93,13 @@ def validate_file(filepath: Path) -> list[str]:
             f"(파일명을 '{author}.md'로 변경하거나 author를 '{expected_author}'로 수정하세요)"
         )
 
+    # git nickname과 author 필드 일치 검증
+    if author and git_nickname and author != git_nickname:
+        errors.append(
+            f"git nickname '{git_nickname}'과 author 필드 '{author}'가 불일치 "
+            f"(author를 '{git_nickname}'로 수정하세요)"
+        )
+
     # tags 필드 타입 검사
     tags = metadata.get("tags")
     if tags is not None and not isinstance(tags, list):
@@ -93,16 +126,21 @@ def find_writeup_files(paths: list[str] | None = None) -> list[Path]:
 
 
 def main() -> int:
-    files = find_writeup_files(sys.argv[1:] if len(sys.argv) > 1 else None)
+    input_paths = sys.argv[1:] if len(sys.argv) > 1 else None
+    files = find_writeup_files(input_paths)
 
     if not files:
         print("검증할 writeup 파일이 없습니다.")
         return 0
 
     has_errors = False
+    should_check_git_nickname = bool(input_paths) or any(
+        os.environ.get(name) for name in GIT_NICKNAME_ENV_VARS
+    )
+    git_nickname = get_git_nickname() if should_check_git_nickname else None
 
     for filepath in files:
-        errors = validate_file(filepath)
+        errors = validate_file(filepath, git_nickname)
         if errors:
             has_errors = True
             print(f"\n[FAIL] {filepath}")

@@ -17,7 +17,7 @@ writeups/2026-DiceCTF/web/baby-xss/bob.md      # bob의 풀이
 writeups/2026-DiceCTF/pwn/heap-note/alice.md   # alice의 다른 문제 풀이
 ```
 
-**주의**: 파일명(`alice.md`)과 frontmatter의 `author` 필드(`alice`)가 반드시 일치해야 합니다. 불일치 시 CI 검증에서 실패합니다.
+**주의**: 파일명(`alice.md`), frontmatter의 `author` 필드(`alice`), PR 작성자의 GitHub username이 반드시 일치해야 합니다. 불일치 시 CI 검증에서 실패합니다.
 
 ## 제출 절차
 
@@ -112,7 +112,7 @@ GitHub에서 PR을 생성합니다. PR 템플릿을 채워주세요.
 
 ## 주의사항
 
-- **파일명 = GitHub username** (예: `alice.md`) — frontmatter의 `author` 필드와 반드시 일치
+- **파일명 = GitHub username** (예: `alice.md`) — frontmatter의 `author` 필드와 PR 작성자의 GitHub username까지 반드시 일치
 - 실제 CTF 플래그는 가급적 마스킹 처리 (예: `flag{REDACTED}`)
 - 대용량 바이너리 파일은 가급적 첨부하지 않기
 - frontmatter 검증 CI가 통과해야 merge 가능

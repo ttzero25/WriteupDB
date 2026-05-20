@@ -27,6 +27,8 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Validate frontmatter
+        env:
+          WRITEUP_GIT_NICKNAME: ${{ github.event.pull_request.user.login }}
         run: |
           FILES="${{ steps.changed.outputs.files }}"
           if [ -z "$FILES" ]; then
