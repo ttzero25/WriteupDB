@@ -9,7 +9,7 @@ points: 1000
 tags: [byte rotation]
 ---
 
-# cmashine
+# rotated
 
 ## 문제 설명
 
